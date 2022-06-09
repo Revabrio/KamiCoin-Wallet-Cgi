@@ -22,50 +22,66 @@ def wallet():
 ОБЯЗАТЕЛЬНО сохраните данные кошелька у безопасном месте!!!!!\n
 =========================================\n""")
         generate_ECDSA_keys()
+        return wallet()
     elif response == "2":
+        menu_send_transaction()
+        return wallet()  #  возвращаемся в главное меню
+    elif response == "3":
+        print(check_transactions())
+        return wallet()  #  возвращаемся в главное меню
+    elif response == "4":
+        print(menu_get_wallet_balance())
+        return wallet()  #  возвращаемся в главное меню
+    else:
+        quit()
+
+def menu_send_transaction():
+    type_transfer = input(
+        "Пожалуйста, введите с какого кошелька вы хотите перевести монеты (1 - текущий, 2 - другой)\n")
+    while (int(type_transfer) != 1 & int(type_transfer) != 2):
         type_transfer = input(
-            "Пожалуйста, введите с какого кошелька вы хотите перевести монеты (1 - текущий, 2 - другой)\n")
-        while (int(type_transfer) != 1 or int(type_transfer) !=2):
-            type_transfer = input(
-                "Пожалуйста повторите попытку или введите 0 для выхода\n")
-            if int(type_transfer) == 0:
-                return wallet()
-        if int(type_transfer) == 1:
+            "Пожалуйста повторите попытку или введите 0 для выхода\n")
+        if int(type_transfer) == 0:
+            return wallet()
+    if int(type_transfer) == 1:
+        if public_key != '' or public_key != '':
             addr_from = public_key
             addr_private = private_key
         else:
-            addr_from = input("Введите публичный ключ (адресс отправителя):\n")
-            addr_private = input("Введите приватный ключ (адресса отправителя):\n")
-        addr_to = input("Адресс получателя перевода\n")
-        amount = input("Сумма перевода\n")
+            print('Пожалуйста, настройте wallet_config.py')
+            return wallet()
+    else:
+        addr_from = input("Введите публичный ключ (адресс отправителя):\n")
+        addr_private = input("Введите приватный ключ (адресса отправителя):\n")
+    addr_to = input("Адресс получателя перевода\n")
+    amount = input("Сумма перевода\n")
+    if int(amount) <= int(get_wallet_balance(addr_from)):
         print("=========================================\n\n")
         print("Проверьте, правильно ли введена информация, после подтверждения отменить перевод будет не возможно?!!\n")
         print(F"От: {public_key}\nПриватный ключ: {private_key}\nК кому: {addr_to}\nСумма: {amount}\n")
         response = input("y/n\n")
         if response.lower() == "y":
             send_transaction(public_key, private_key, addr_to, amount)
-        elif response.lower() == "n":
-            return wallet()  #  возвращаемся в главное меню
-    elif response == "3":
-        print(check_transactions())
-        return wallet()  #  возвращаемся в главное меню
-    elif response == "4":
+    else:
+        print('Не достаточно монет для перевода. Возвращаемся в главное меню')
+
+def menu_get_wallet_balance():
+    type_transfer = input(
+        "Пожалуйста, введите баланс какого кошелька вы хотите проверить (1 - текущего, 2 - другого)\n")
+    while (int(type_transfer) != 1 & int(type_transfer) != 2):
         type_transfer = input(
-            "Пожалуйста, введите баланс какого кошелька вы хотите проверить (1 - текущего, 2 - другого)\n")
-        while (int(type_transfer) != 1 or int(type_transfer) != 2):
-            type_transfer = input(
-                "Пожалуйста повторите попытку или введите 0 для выхода\n")
-            if int(type_transfer) == 0:
-                return wallet()
-        if int(type_transfer) == 1:
+            "Пожалуйста повторите попытку или введите 0 для выхода\n")
+        if int(type_transfer) == 0:
+            return wallet()
+    if int(type_transfer) == 1:
+        if public_key != '' or public_key != '':
             wallet_address = public_key
         else:
-            wallet_address = input("Введите адресс кошелька, баланс которого хотите проверить:\n")
-        print(get_wallet_balance(wallet_address))
-        return wallet()
+            print('Пожалуйста, настройте wallet_config.py')
+            return wallet()
     else:
-        quit()
-
+        wallet_address = input("Введите адресс кошелька, баланс которого хотите проверить:\n")
+    return get_wallet_balance(wallet_address)
 
 def send_transaction(addr_from, private_key, addr_to, amount):
     """Функция формирования и отправления транз-акции. На вход принимает:
